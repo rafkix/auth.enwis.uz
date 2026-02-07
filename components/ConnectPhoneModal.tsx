@@ -65,7 +65,7 @@ export default function ConnectPhoneModal({ isOpen, onClose }: Props) {
                                     </div>
 
                                     <a 
-                                        href={`https://t.me/${BOT_USERNAME}?start=verify`} 
+                                        href={`https://t.me/${BOT_USERNAME}?start=verify_phone`} 
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="w-full h-12 bg-[#229ED9] text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-[#1e8cc2] transition-colors shadow-lg shadow-blue-400/30"
