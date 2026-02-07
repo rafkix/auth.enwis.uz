@@ -24,7 +24,7 @@ export default function AuthorizePage() {
             .then(res => res.json())
             .then(data => setClientName(data.name))
             .catch(() => setClientName("Noma'lum ilova"))
-    }, [])
+    }, [params.client_id, params.redirect_uri])
 
     const handleApprove = async () => {
         setLoading(true)
@@ -33,13 +33,13 @@ export default function AuthorizePage() {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}` // Tokenni olish
+                    'Authorization': `Bearer ${localStorage.getItem('token')}` 
                 },
                 body: JSON.stringify(params)
             })
             const data = await res.json()
             if (data.redirect_to) {
-                window.location.href = data.redirect_to // Client saytiga qaytish
+                window.location.href = data.redirect_to 
             }
         } catch (e) {
             alert("Xatolik yuz berdi")
@@ -59,14 +59,14 @@ export default function AuthorizePage() {
                 
                 <h1 className="text-xl font-black text-center text-slate-900 mb-2">Ruxsat so'ralmoqda</h1>
                 <p className="text-center text-slate-500 text-sm mb-8">
-                    <span className="font-bold text-slate-900">{clientName}</span> ilovasi sizning profilingizga ruxsat so'ramoqda.
+                    <span className="font-bold text-slate-900">{clientName}</span> ilovasi profilingizga ruxsat so'ramoqda.
                 </p>
 
                 <div className="space-y-3">
-                    <button onClick={handleApprove} disabled={loading} className="w-full h-12 bg-[#17776A] text-white rounded-xl font-bold flex items-center justify-center gap-2">
+                    <button onClick={handleApprove} disabled={loading} className="w-full h-12 bg-[#17776A] text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-all active:scale-95">
                         {loading ? <Loader2 className="animate-spin" /> : "Ruxsat berish"}
                     </button>
-                    <button onClick={() => router.back()} className="w-full h-12 bg-slate-100 text-slate-600 rounded-xl font-bold">
+                    <button onClick={() => router.back()} className="w-full h-12 bg-slate-100 text-slate-600 rounded-xl font-bold transition-all active:scale-95">
                         Bekor qilish
                     </button>
                 </div>
