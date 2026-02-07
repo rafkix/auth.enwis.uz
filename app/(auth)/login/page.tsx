@@ -39,7 +39,7 @@ export default function LoginPage() {
                     state: state || ""
                 }).toString()
                 
-                router.push(`/login/oauth/authorize?${query}`)
+                router.push(`/oauth/authorize?${query}`)
             } else {
                 // Oddiy login bo'lsa dashboardga
                 router.push("/dashboard")
