@@ -4,25 +4,20 @@ import { useState } from "react"
 import { motion } from "framer-motion"
 import { ArrowRight, User, Lock, Loader2, Eye, EyeOff, Smartphone } from "lucide-react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useAuth } from "@/lib/AuthContext" // Or lib/AuthContext
 
 export default function LoginPage() {
     const router = useRouter()
+    const searchParams = useSearchParams() // URL parametrlarini o'qish uchun
     const { login } = useAuth()
     const [loading, setLoading] = useState(false)
-
-    // Password Visibility State
-    const [showPassword, setShowPassword] = useState(false)
-
-    const [formData, setFormData] = useState({
-        login: "",
-        password: ""
-    })
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }))
-    }
+    
+    // URL parametrlari (OAuth uchun)
+    const clientId = searchParams.get("client_id")
+    const redirectUri = searchParams.get("redirect_uri")
+    const scope = searchParams.get("scope")
+    const state = searchParams.get("state")
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -30,10 +25,25 @@ export default function LoginPage() {
 
         try {
             await login({
-                login: formData.login,
-                password: formData.password
+                login: FormData.login,
+                password: FormData.password
             })
-            router.push("/dashboard")
+            
+            // AGAR OAUTH SO'ROVI BO'LSA
+            if (clientId) {
+                // Hamma parametrlarni saqlab qolgan holda Consent sahifasiga yuboramiz
+                const query = new URLSearchParams({
+                    client_id: clientId!,
+                    redirect_uri: redirectUri!,
+                    scope: scope || "profile",
+                    state: state || ""
+                }).toString()
+                
+                router.push(`/login/oauth/authorize?${query}`)
+            } else {
+                // Oddiy login bo'lsa dashboardga
+                router.push("/dashboard")
+            }
         } catch (error: any) {
             alert(error.response?.data?.detail || "Login yoki parol noto'g'ri")
         } finally {
