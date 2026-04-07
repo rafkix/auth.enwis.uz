@@ -1,77 +1,171 @@
-"use client"
+'use client'
 
-import { createContext, useContext, useEffect, useState } from "react"
-import { authService, User } from "@/lib/api"
-import { useRouter } from "next/navigation"
+import React, {
+    createContext,
+    useCallback,
+    useContext,
+    useEffect,
+    useMemo,
+    useState,
+} from 'react'
+import { authService } from '@/lib/api/authService'
 
-interface AuthContextType {
-    user: User | null
-    loading: boolean
-    login: (data: any) => Promise<void>
-    logout: () => void
-    refreshUser: () => Promise<void>
+type UserRole = 'user' | 'admin' | 'teacher'
+
+export type UserProfile = {
+    full_name?: string | null
+    username?: string | null
+    avatar_url?: string | null
+    bio?: string | null
+    birth_date?: string | null
+    language?: string | null
+    timezone?: string | null
+    created_at: string
+    updated_at: string
+}
+
+export type UserContact = {
+    id: number
+    contact_type: 'email' | 'phone' | 'telegram'
+    value: string
+    normalized_value: string
+    is_verified: boolean
+    is_primary: boolean
+    created_at: string
+    updated_at: string
+}
+
+export type UserIdentity = {
+    id: number
+    provider: 'google' | 'telegram' | 'phone'
+    provider_id: string
+    created_at: string
+    updated_at: string
+}
+
+export type UserMeResponse = {
+    id: number
+    is_active: boolean
+    global_role: UserRole
+    created_at: string
+    updated_at: string
+    profile?: UserProfile | null
+    contacts: UserContact[]
+    identities: UserIdentity[]
+}
+
+type AuthContextType = {
+    user: UserMeResponse | null
+    isAuthenticated: boolean
+    isLoading: boolean
+    initialized: boolean
+    setUser: React.Dispatch<React.SetStateAction<UserMeResponse | null>>
+    refreshUser: () => Promise<UserMeResponse | null>
+    logout: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-    const [user, setUser] = useState<User | null>(null)
-    const [loading, setLoading] = useState(true)
-    const router = useRouter()
+    const [user, setUser] = useState<UserMeResponse | null>(null)
+    const [isLoading, setIsLoading] = useState(true)
+    const [initialized, setInitialized] = useState(false)
 
-    useEffect(() => {
-        const initAuth = async () => {
-            const token = localStorage.getItem("access_token")
-            if (!token) {
-                setLoading(false)
-                return
-            }
-            try {
-                // Token bor bo'lsa, userni yuklaymiz
-                // Agar token eskirgan bo'lsa, api.ts dagi interceptor avtomatik refresh qiladi
-                const userData = await authService.getMe()
-                setUser(userData)
-            } catch (error) {
-                console.error("Auth Init Failed:", error)
-                // Agar refresh ham o'xshamasa, logout bo'ladi
-            } finally {
-                setLoading(false)
-            }
-        }
-        initAuth()
+    const clearAuthState = useCallback(() => {
+        authService.clearTokens()
+        setUser(null)
     }, [])
 
-    const login = async (data: any) => {
-        await authService.login(data)
-        const userData = await authService.getMe()
-        setUser(userData)
-        router.push("/dashboard")
-    }
+    const loadMe = useCallback(async (): Promise<UserMeResponse | null> => {
+        const me = await authService.getMe()
+        setUser(me)
+        return me
+    }, [])
 
-    const logout = () => {
-        authService.logout()
-        setUser(null)
-        router.push("/login")
-    }
+    const refreshUser = useCallback(async (): Promise<UserMeResponse | null> => {
+        const accessToken = authService.getAccessToken()
+        const refreshToken = authService.getRefreshToken()
 
-    const refreshUser = async () => {
-        try {
-            const userData = await authService.getMe()
-            setUser(userData)
-        } catch (error) {
-            console.error("User refresh failed", error)
+        if (!accessToken && !refreshToken) {
+            setUser(null)
+            return null
         }
-    }
 
-    return (
-        <AuthContext.Provider value={{ user, loading, login, logout, refreshUser }}>
-            {children}
-        </AuthContext.Provider>
+        try {
+            return await loadMe()
+        } catch (error: any) {
+            const status = error?.response?.status
+
+            // access token eskirgan bo‘lsa refresh qilib qayta urinib ko‘ramiz
+            if (status === 401 && refreshToken) {
+                try {
+                    await authService.refresh()
+                    return await loadMe()
+                } catch {
+                    clearAuthState()
+                    return null
+                }
+            }
+
+            // 403 yoki boshqa xatolarda ham state ni tozalaymiz
+            clearAuthState()
+            return null
+        }
+    }, [clearAuthState, loadMe])
+
+    const logout = useCallback(async () => {
+        try {
+            await authService.logout()
+        } catch {
+            clearAuthState()
+            window.location.href = 'https://auth.enwis.uz'
+        }
+    }, [clearAuthState])
+
+    useEffect(() => {
+        let mounted = true
+
+        const bootstrap = async () => {
+            try {
+                if (!mounted) return
+                setIsLoading(true)
+                await refreshUser()
+            } finally {
+                if (!mounted) return
+                setIsLoading(false)
+                setInitialized(true)
+            }
+        }
+
+        bootstrap()
+
+        return () => {
+            mounted = false
+        }
+    }, [refreshUser])
+
+    const value = useMemo<AuthContextType>(
+        () => ({
+            user,
+            isAuthenticated: !!user,
+            isLoading,
+            initialized,
+            setUser,
+            refreshUser,
+            logout,
+        }),
+        [user, isLoading, initialized, refreshUser, logout]
     )
+
+    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
-export const useAuth = () => {
+export function useAuth(): AuthContextType {
     const context = useContext(AuthContext)
-    if (context === undefined) throw new Error("useAuth must be used within AuthProvider")
+
+    if (!context) {
+        throw new Error('useAuth must be used inside AuthProvider')
+    }
+
     return context
 }
