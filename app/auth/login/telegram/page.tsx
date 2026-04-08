@@ -8,7 +8,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
-import { authService } from "@/lib/api/authService"
+import { authService } from "@/lib/api/auth"
 import { useAuth } from "@/lib/AuthContext"
 
 // Karusel uchun ma'lumotlar
@@ -62,19 +62,19 @@ function TelegramLoginContent() {
     }, [])
 
     useEffect(() => {
-        const fetchTelegramSubs = async () => {
-            try {
-                const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getChatMemberCount?chat_id=${TELEGRAM_CHANNEL_ID}`);
-                const data = await response.json();
-                if (data.ok) {
-                    const count = data.result;
-                    setSubscriberCount(count >= 1000 ? `${(count / 1000).toFixed(1)}K+` : count.toString());
-                }
-            } catch (error) { console.error(error); }
-        };
-        fetchTelegramSubs();
-    }, []);
-
+            const fetchTelegramSubs = async () => {
+                try {
+                    const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getChatMemberCount?chat_id=${TELEGRAM_CHANNEL_ID}`);
+                    const data = await response.json();
+                    if (data.ok) {
+                        const count = data.result;
+                        setSubscriberCount(count >= 1000 ? `${(count / 1000).toFixed(1)}K+` : count.toString());
+                    }
+                } catch (error) { console.error(error); }
+            };
+            fetchTelegramSubs();
+        }, []);
+    
 
     useEffect(() => {
         if (widgetLoaded) return

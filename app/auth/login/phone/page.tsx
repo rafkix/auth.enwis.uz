@@ -20,7 +20,7 @@ import {
   ExternalLink,
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { authService } from '@/lib/api/authService'
+import { authService } from '@/lib/api/auth'
 import { useAuth } from '@/lib/AuthContext'
 
 const BOT_USERNAME = 'EnwisAuthBot'

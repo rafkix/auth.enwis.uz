@@ -11,11 +11,12 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
     useEffect(() => {
         if (!loading && user) {
-            router.replace("/dashboard")
+            window.location.href =
+                process.env.NEXT_PUBLIC_APP_URL || "https://app.enwis.uz"
         }
     }, [user, loading])
 
-    if (loading || user) {
+    if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <Loader2 className="animate-spin" />

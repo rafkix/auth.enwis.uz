@@ -70,7 +70,7 @@ const ADS: AdItem[] = [
     id: 3,
     color: "#FF5733",
     image:
-      "https://images.unsplash.com/photo-1551288049-bbbda546697a?q=80&w=1600&auto=format&fit=crop",
+      "https://medicaldialogues.in/h-upload/2022/07/21/181443-results-1.jpg",
     icon: Star,
     title: (
       <>
@@ -209,13 +209,9 @@ function LoginForm() {
             </div>
 
             {/* Social */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="h-16">
-                <GoogleSignInButton />
-              </div>
-              <div className="h-16">
-                <TelegramSignInWidget />
-              </div>
+            <div className="w-full max-w-md mx-auto space-y-4">
+              <GoogleSignInButton />
+              <TelegramSignInWidget />
             </div>
           </div>
 
@@ -316,9 +312,8 @@ function LoginForm() {
                 key={i}
                 aria-label={`Show ad ${i + 1}`}
                 onClick={() => setAdIndex(i)}
-                className={`h-1.5 rounded-full transition-all duration-500 ${
-                  adIndex === i ? "w-14" : "w-4 bg-white/10"
-                }`}
+                className={`h-1.5 rounded-full transition-all duration-500 ${adIndex === i ? "w-14" : "w-4 bg-white/10"
+                  }`}
                 style={{ backgroundColor: adIndex === i ? activeAd.color : undefined }}
               />
             ))}
