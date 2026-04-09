@@ -1,13 +1,14 @@
 'use client'
 
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { authService } from '@/lib/api/auth'
 
-/* ================= SHARED STYLE ================= */
+/* ================= COMMON STYLE ================= */
 
-const AUTH_BUTTON =
-  "w-full h-[54px] rounded-xl border border-gray-200 bg-white flex items-center justify-center gap-3 shadow-sm hover:shadow-md hover:bg-gray-50 transition active:scale-[0.98]"
+const AUTH_BTN =
+  "w-full h-[54px] rounded-xl border border-gray-200 bg-white flex items-center justify-center gap-3 shadow-sm hover:shadow-md hover:bg-gray-50 active:scale-[0.98] transition"
+
 /* ================= GOOGLE ================= */
 
 export const GoogleSignInButton = () => {
@@ -19,28 +20,48 @@ export const GoogleSignInButton = () => {
 
   const handleGoogleLogin = () => {
     const GOOGLE_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
+    if (!GOOGLE_ID) {
+      alert('Google client ID yoq')
+      return
+    }
+
     const REDIRECT = `${window.location.origin}/auth/google/callback`
 
     const url = new URL("https://accounts.google.com/o/oauth2/v2/auth")
 
-    url.searchParams.set("client_id", GOOGLE_ID!)
+    url.searchParams.set("client_id", GOOGLE_ID)
     url.searchParams.set("redirect_uri", REDIRECT)
     url.searchParams.set("response_type", "code")
     url.searchParams.set("scope", "openid email profile")
+    url.searchParams.set("prompt", "select_account")
 
     if (state) url.searchParams.set("state", state)
 
-    // 🔥 yangi oynada ochiladi
-    window.open(url.toString(), "_blank", "width=500,height=600")
+    // 🔥 popup ochish
+    const popup = window.open(
+      url.toString(),
+      "googleLogin",
+      "width=500,height=600"
+    )
+
+    // 🔥 popup yopilganda refresh
+    const timer = setInterval(() => {
+      if (popup?.closed) {
+        clearInterval(timer)
+        window.location.reload()
+      }
+    }, 500)
   }
 
   return (
-    <button
-      onClick={handleGoogleLogin}
-      className="auth-btn"
-    >
-      <img src="/icons/google.svg" className="w-5 h-5" />
-      <span>Continue with Google</span>
+    <button onClick={handleGoogleLogin} className={AUTH_BTN}>
+      <img
+        src="https://www.svgrepo.com/show/475656/google-color.svg"
+        className="w-5 h-5"
+      />
+      <span className="font-semibold text-gray-700">
+        Continue with Google
+      </span>
     </button>
   )
 }
@@ -56,15 +77,27 @@ export const TelegramSignInWidget = () => {
   const state = searchParams.get('state')
 
   useEffect(() => {
-    (window as any).onTelegramAuth = async (user: any) => {
-      await authService.telegramLogin(user)
+    let mounted = true
 
-      const nextUrl = clientId
-        ? `/auth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&state=${state}`
-        : process.env.NEXT_PUBLIC_APP_URL || 'https://app.enwis.uz'
+      ; (window as any).onTelegramAuth = async (user: any) => {
+        try {
+          await authService.telegramLogin(user)
 
-      window.location.href = nextUrl
-    }
+          const nextUrl = clientId
+            ? `/auth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&state=${state}`
+            : process.env.NEXT_PUBLIC_APP_URL || 'https://app.enwis.uz'
+
+          window.location.href = nextUrl
+        } catch (err) {
+          console.error(err)
+          alert('Telegram login error')
+        }
+      }
+
+    if (!ref.current || !mounted) return
+
+    // 🔥 reset
+    ref.current.innerHTML = ""
 
     const script = document.createElement("script")
     script.src = "https://telegram.org/js/telegram-widget.js?22"
@@ -74,17 +107,19 @@ export const TelegramSignInWidget = () => {
     script.setAttribute("data-size", "large")
     script.setAttribute("data-userpic", "false")
     script.setAttribute("data-radius", "12")
+    script.setAttribute("data-request-access", "write")
     script.setAttribute("data-onauth", "onTelegramAuth(user)")
 
-    if (ref.current) {
-      ref.current.innerHTML = ""
-      ref.current.appendChild(script)
+    ref.current.appendChild(script)
+
+    return () => {
+      mounted = false
     }
-  }, [])
+  }, [clientId, redirectUri, state])
 
   return (
-    <div className="auth-btn p-0 overflow-hidden">
-      <div ref={ref} className="w-full flex justify-center scale-[1.05]" />
+    <div className={AUTH_BTN + " p-0 overflow-hidden"}>
+      <div className="w-full flex justify-center scale-[1.05]" ref={ref} />
     </div>
   )
 }

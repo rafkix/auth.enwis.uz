@@ -161,6 +161,7 @@ export default async function LocaleLayout({
             <body className="antialiased">
 
                 {/* Google Identity */}
+
                 <script src="https://accounts.google.com/gsi/client" async defer></script>
 
                 {/* Progress */}
