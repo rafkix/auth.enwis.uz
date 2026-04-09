@@ -12,9 +12,8 @@ const BUTTON_WRAPPER =
 /* ================= GOOGLE ================= */
 
 export const GoogleSignInButton = () => {
-  const ref = useRef<HTMLDivElement>(null)
-
   const searchParams = useSearchParams()
+
   const clientId = searchParams.get('client_id')
   const redirectUri = searchParams.get('redirect_uri')
   const state = searchParams.get('state')
@@ -37,40 +36,25 @@ export const GoogleSignInButton = () => {
           window.location.href = nextUrl
         },
       })
+  }, [])
 
-    if (ref.current) {
-      ref.current.innerHTML = ''
-
-        ; (window as any).google.accounts.id.renderButton(ref.current, {
-          theme: 'outline',
-          size: 'large',
-          width: 999,
-        })
-    }
-  }, [clientId, redirectUri, state])
+  const handleLogin = () => {
+    ; (window as any).google.accounts.id.prompt()
+  }
 
   return (
-    <div className="relative w-full">
-
-      {/* FAKE PREMIUM BUTTON */}
-      <button className="w-full h-[54px] rounded-xl border border-gray-200 bg-white hover:bg-gray-50 transition flex items-center justify-center gap-3 shadow-sm hover:shadow-md">
-
-        <img
-          src="https://www.svgrepo.com/show/475656/google-color.svg"
-          className="w-5 h-5"
-        />
-
-        <span className="font-semibold text-gray-700">
-          Continue with Google
-        </span>
-      </button>
-
-      {/* REAL GOOGLE (INVISIBLE) */}
-      <div
-        ref={ref}
-        className="absolute inset-0 opacity-0 cursor-pointer"
+    <button
+      onClick={handleLogin}
+      className="w-full h-[54px] rounded-xl border border-gray-200 bg-white hover:bg-gray-50 flex items-center justify-center gap-3 shadow-sm hover:shadow-md transition"
+    >
+      <img
+        src="https://www.svgrepo.com/show/475656/google-color.svg"
+        className="w-5 h-5"
       />
-    </div>
+      <span className="font-semibold text-gray-700">
+        Continue with Google
+      </span>
+    </button>
   )
 }
 
@@ -85,7 +69,7 @@ export const TelegramSignInWidget = () => {
   const state = searchParams.get('state')
 
   useEffect(() => {
-    ; (window as any).onTelegramAuth = async (user: any) => {
+    ;(window as any).onTelegramAuth = async (user: any) => {
       await authService.telegramLogin(user)
 
       const nextUrl = clientId
@@ -101,37 +85,18 @@ export const TelegramSignInWidget = () => {
 
     script.setAttribute('data-telegram-login', 'EnwisAuthBot')
     script.setAttribute('data-size', 'large')
+    script.setAttribute('data-radius', '12')
     script.setAttribute('data-onauth', 'onTelegramAuth(user)')
 
     if (ref.current) {
       ref.current.innerHTML = ''
       ref.current.appendChild(script)
     }
-  }, [clientId, redirectUri, state])
+  }, [])
 
   return (
-    <div className="relative w-full">
-
-      {/* FAKE PREMIUM BUTTON */}
-      <button className="w-full h-[54px] rounded-xl bg-[#229ED9] text-white hover:bg-[#1c80b0] transition flex items-center justify-center gap-3 shadow-sm hover:shadow-md">
-
-        <svg
-          viewBox="0 0 24 24"
-          className="w-5 h-5 fill-white"
-        >
-          <path d="M9.78 18.65l-.39 5.47c.56 0 .8-.24 1.1-.52l2.63-2.5 5.46 3.98c1 .55 1.72.26 1.97-.92l3.56-16.67c.32-1.5-.54-2.08-1.52-1.72L1.2 9.6c-1.45.57-1.43 1.38-.25 1.75l5.4 1.69L19.1 6.5c.6-.4 1.15-.18.7.22" />
-        </svg>
-
-        <span className="font-semibold">
-          Continue with Telegram
-        </span>
-      </button>
-
-      {/* REAL TELEGRAM */}
-      <div
-        ref={ref}
-        className="absolute inset-0 opacity-0 cursor-pointer"
-      />
+    <div className="w-full h-[54px] flex items-center justify-center border border-gray-200 rounded-xl bg-white shadow-sm hover:shadow-md transition overflow-hidden">
+      <div ref={ref} className="scale-[0.95]" />
     </div>
   )
 }
