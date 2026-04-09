@@ -1,0 +1,32 @@
+{
+  "meta": {
+    "home": {
+      "title": "ENWIS — barcha imtihonlar uchun yagona tayyorgarlik platformasi",
+      "description": "ENWIS — IELTS, CEFR, DTM va boshqa imtihonlarga tayyorlanish uchun zamonaviy platforma."
+    }
+  },
+  "seo": {
+    "title": "ENWIS – CEFR tayyorgarlik platformasi",
+    "description": "CEFR imtihonlariga samarali tayyorlaning. Testlar, mashqlar va real imtihon formatlari bilan bilimingizni oshiring."
+  },
+  "auth": {
+    "welcome": "Xush kelibsiz",
+    "subtitle": "Davom etish uchun tizimga kiring",
+    "phone": "Telefon raqam orqali kirish",
+    "or": "Yoki",
+    "agree": "Davom etish orqali siz",
+    "terms": "foydalanish shartlariga rozilik bildirasiz"
+  },
+  "ads": {
+    "title": "ENWIS bilan tezroq o‘rganing",
+    "description": "CEFR, IELTS va boshqa imtihonlarga zamonaviy tizim orqali tayyorlaning",
+    "cta": "Hamjamiyatga qo‘shiling"
+  },
+  "common": {
+    "loading": "Yuklanmoqda...",
+    "continue": "Davom etish",
+    "back": "Orqaga",
+    "error": "Xatolik yuz berdi",
+    "login": "Kirish"
+  }
+}

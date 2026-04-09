@@ -1,0 +1,32 @@
+{
+  "meta": {
+    "home": {
+      "title": "ENWIS — one preparation platform for all exams",
+      "description": "ENWIS is a platform for IELTS, CEFR, DTM, and other exam preparation."
+    }
+  },
+  "seo": {
+    "title": "ENWIS – CEFR platform",
+    "description": "Prepare for CEFR exams..."
+  },
+  "auth": {
+    "welcome": "Welcome",
+    "subtitle": "Sign in to continue",
+    "phone": "Continue with phone",
+    "or": "Or",
+    "agree": "By continuing you agree to",
+    "terms": "Terms of Service"
+  },
+  "ads": {
+    "title": "Learn faster with ENWIS",
+    "description": "Prepare for CEFR, IELTS and more using a modern platform",
+    "cta": "Join the community"
+  },
+  "common": {
+    "loading": "Loading...",
+    "continue": "Continue",
+    "back": "Back",
+    "error": "Something went wrong",
+    "login": "Login"
+  }
+}
