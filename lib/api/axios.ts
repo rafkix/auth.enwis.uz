@@ -4,34 +4,22 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
 
 const api = axios.create({
   baseURL: `${API_URL}/api/v1`,
+  withCredentials: true, // 🔥 COOKIE UCHUN SHART
   headers: {
     "Content-Type": "application/json",
   },
-  withCredentials: true, // 🔥 MUHIM
 });
 
-// DEBUG (optional)
-api.interceptors.request.use(
-  (config) => {
-    if (process.env.NODE_ENV === "development") {
-      console.log(`🚀 ${config.method?.toUpperCase()} ${config.url}`);
-    }
-    return config;
-  },
-  (error) => Promise.reject(error),
-);
+// ❗ TOKEN HEADER YO‘Q (cookie ishlatyapsan)
 
-// RESPONSE
 api.interceptors.response.use(
   (res) => res,
-  async (error) => {
-    const status = error.response?.status;
-
-    if (status === 401) {
-      console.error("⛔ Unauthorized");
-
+  (error) => {
+    if (error.response?.status === 401) {
       if (typeof window !== "undefined") {
-        window.location.href = "https://auth.enwis.uz";
+        const currentUrl = window.location.href;
+
+        window.location.href = `https://auth.enwis.uz?redirect=${encodeURIComponent(currentUrl)}`;
       }
     }
 
