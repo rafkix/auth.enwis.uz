@@ -87,7 +87,7 @@ export const TelegramSignInWidget = () => {
     if (clientId) {
       return `https://auth.enwis.uz/auth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&state=${state}`
     }
-    return `https://app.enwis.uz/dashboard`
+    return `https://cefr.enwis.uz/dashboard`
   }
 
   useEffect(() => {
